@@ -20,7 +20,9 @@ Obj = tuple[
 SHADER_DIR = Path(__file__).parent
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 450
+SCREEN_PROPORTION = SCREEN_HEIGHT / SCREEN_WIDTH
 STRIDE = 5 * 4
+HAT_SIZE = 0.5
 HAT_COLOR: Color = (254 / 255, 214 / 255, 48 / 255)
 HAT_BORDER_WITH: float = 10
 BACKGROUND_COLOR = (22 / 255, 145 / 255, 205 / 255, 1)
@@ -36,7 +38,7 @@ def semi_circle(
 
     for i in range(precision + 1):
         angle = math.radians(i * 180 / precision)
-        x = math.cos(angle) * size + center[0]
+        x = math.cos(angle) * size * SCREEN_PROPORTION + center[0]
         y = math.sin(angle) * size + center[1]
         vertices.append((x, y, *color))
 
@@ -49,9 +51,12 @@ def line(
     color: Color = (1.0, 1.0, 1.0),
 ) -> list[Vertex]:
 
+    begin_ajusted = begin[0] * SCREEN_PROPORTION
+    end_ajusted = end[0] * SCREEN_PROPORTION
+
     v: list[Vertex] = []
-    v.append((*begin, *color))
-    v.append((*end, *color))
+    v.append((begin_ajusted, begin[1], *color))
+    v.append((end_ajusted, end[1], *color))
 
     return v
 
@@ -81,22 +86,30 @@ def init() -> int:
 
 
 def create_hat_top() -> Obj:
-    v: list[Vertex] = semi_circle(precision=40, size=0.3, color=HAT_COLOR)
+    v: list[Vertex] = semi_circle(precision=40, size=HAT_SIZE, color=HAT_COLOR)
 
     vaoId = create_buffers(np.array(v, dtype=np.float32))
     return vaoId, len(v)
 
 
 def create_hat_border() -> Obj:
-    v: list[Vertex] = line(begin=(-0.5, 0), end=(0.5, 0), color=HAT_COLOR)
+    v: list[Vertex] = line(
+        begin=(-HAT_SIZE * 1.5, 0), end=(HAT_SIZE * 1.5, 0), color=HAT_COLOR
+    )
 
     vaoId = create_buffers(np.array(v, dtype=np.float32))
     return vaoId, len(v)
 
 
+def create_hat() -> list[Obj]:
+    hat: list[Obj] = [create_hat_top(), create_hat_border()]
+
+    return hat
+
+
 def draw_hat_border(obj: Obj):
     glBindVertexArray(obj[0])
-    glLineWidth(5.0)
+    glLineWidth(HAT_BORDER_WITH)
     glDrawArrays(GL_LINES, 0, obj[1])
     glLineWidth(1.0)
     glBindVertexArray(0)
@@ -132,9 +145,7 @@ def main() -> None:
 
     shaderId = init()
 
-    hat = []
-    hat.append(create_hat_top())
-    hat.append(create_hat_border())
+    hat = create_hat()
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
