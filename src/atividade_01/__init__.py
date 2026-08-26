@@ -24,7 +24,10 @@ SCREEN_PROPORTION = SCREEN_HEIGHT / SCREEN_WIDTH
 STRIDE = 5 * 4
 HAT_SIZE = 0.5
 HAT_COLOR: Color = (254 / 255, 214 / 255, 48 / 255)
+HAT_SHADOW_COLOR: Color = (21 / 255, 129 / 255, 186 / 255)
 HAT_BORDER_WITH: float = 10
+HAT_BORDER_BEGIN_X = -HAT_SIZE * 1.5 * SCREEN_PROPORTION
+HAT_BORDER_END_X = -HAT_BORDER_BEGIN_X
 BACKGROUND_COLOR = (22 / 255, 145 / 255, 205 / 255, 1)
 
 
@@ -101,8 +104,22 @@ def create_hat_border() -> Obj:
     return vaoId, len(v)
 
 
+def create_hat_shadow() -> Obj:
+    v: list[Vertex] = [
+        # (-HAT_SIZE, 0.0, *HAT_SHADOW_COLOR),
+        (HAT_BORDER_BEGIN_X, 0.0, *HAT_SHADOW_COLOR),
+        (0.0, 0.0, *HAT_SHADOW_COLOR),
+        (0.0, -1.0, *HAT_SHADOW_COLOR),
+        (HAT_BORDER_END_X, 0.0, *HAT_SHADOW_COLOR),
+        (1.0, -1.0, *HAT_SHADOW_COLOR),
+    ]
+
+    vaoId = create_buffers(np.array(v, dtype=np.float32))
+    return vaoId, len(v)
+
+
 def create_hat() -> list[Obj]:
-    hat: list[Obj] = [create_hat_top(), create_hat_border()]
+    hat: list[Obj] = [create_hat_top(), create_hat_border(), create_hat_shadow()]
 
     return hat
 
@@ -115,15 +132,22 @@ def draw_hat_border(obj: Obj):
     glBindVertexArray(0)
 
 
-def draw_hat_top(obj: Obj) -> None:
+def draw_hat_top(obj: Obj):
     glBindVertexArray(obj[0])
     glDrawArrays(GL_TRIANGLE_FAN, 0, obj[1])
+    glBindVertexArray(0)
+
+
+def draw_hat_shadow(obj: Obj):
+    glBindVertexArray(obj[0])
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, obj[1])
     glBindVertexArray(0)
 
 
 def render(shaderId: int, hat: list[Obj]) -> None:
     glClear(GL_COLOR_BUFFER_BIT)
     glUseProgram(shaderId)
+    draw_hat_shadow(hat[2])
     draw_hat_top(hat[0])
     draw_hat_border(hat[1])
     glUseProgram(0)

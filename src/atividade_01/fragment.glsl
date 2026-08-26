@@ -17,7 +17,7 @@ void main() {
         color = STRIPE_COLOR;
     }
 
-    if (vPos.x > 0) {
+    if (vPos.x > 0 && vPos.y > 0 - 0.01) {
         // escureça o lado direito da imagem
         color = color * 0.9;
     }
