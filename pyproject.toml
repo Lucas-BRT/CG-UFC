@@ -1,0 +1,21 @@
+[project]
+name = "atividade-01"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "lucas-brt", email = "lucasbritodepaula@proton.me" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "glfw>=2.10.2",
+    "numpy>=2.5.2",
+    "pyopengl>=3.1.10",
+]
+
+[project.scripts]
+atividade-01 = "atividade_01:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
