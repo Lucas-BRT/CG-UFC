@@ -1,18 +1,21 @@
+from __future__ import annotations
+
 import ctypes
 import math
 from pathlib import Path
+from typing import Tuple
 
 import glfw
 import numpy as np
 import OpenGL.GL.shaders as gls
 from OpenGL.GL import *
 
-Vertex = tuple[float, float, float, float, float]
-Color = tuple[float, float, float]
-Position = tuple[float, float]
+Vertex = Tuple[float, float, float, float, float]
+Color = Tuple[float, float, float]
+Position = Tuple[float, float]
 VaoId = int
 VertexAmount = int
-Obj = tuple[
+Obj = Tuple[
     VaoId, VertexAmount
 ]  # Gambiarra para passar os objetos com diferentes primitivas sem quebrar a cabeça
 
